@@ -14,7 +14,7 @@ class AlarmScreen extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: FutureBuilder<List<Map>>(
+          child: FutureBuilder<List<Map<String, dynamic>>>(
             future: SqliteServiceProvider.getAllDetails(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -41,7 +41,7 @@ class AlarmScreen extends StatelessWidget {
                         ),
                       ),
                       subtitle: Text(
-                        "Time: ${task['DateTime'].toString().substring(10, 16)}",
+                        "Time: ${task['DateTime'].toString().substring(11, 16)}",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.white.withOpacity(.8),
@@ -52,8 +52,8 @@ class AlarmScreen extends StatelessWidget {
                             color: Colors.white.withOpacity(.8)),
                         onPressed: () async {
                           await SqliteServiceProvider.deleteTask(task['id']);
-                          // Force rebuild to reflect changes
-                          alarmProvider.notifyListeners();
+                          alarmProvider
+                              .removeAlarm(DateTime.parse(task['DateTime']));
                         },
                       ),
                     ),
@@ -64,96 +64,94 @@ class AlarmScreen extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: ElevatedButton(
-            onPressed: () async {
-              // Show date picker
-              DateTime? picked = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime(2101),
-              );
-              if (picked != null) {
-                // Show time picker
-                TimeOfDay? timeOfDay = await showTimePicker(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: ElevatedButton(
+              onPressed: () async {
+                DateTime? picked = await showDatePicker(
                   context: context,
-                  initialTime: TimeOfDay.now(),
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2101),
                 );
-                if (timeOfDay != null) {
-                  // Combine date and time into a single DateTime object
-                  final dateTime = DateTime(
-                    picked.year,
-                    picked.month,
-                    picked.day,
-                    timeOfDay.hour,
-                    timeOfDay.minute,
+                if (picked != null) {
+                  TimeOfDay? timeOfDay = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
                   );
-                  // alarmProvider.addAlarm(dateTime);
+                  if (timeOfDay != null) {
+                    final dateTime = DateTime(
+                      picked.year,
+                      picked.month,
+                      picked.day,
+                      timeOfDay.hour,
+                      timeOfDay.minute,
+                    );
 
-                  final alarmSettings = AlarmSettings(
-                    id: 42,
-                    dateTime: dateTime,
-                    assetAudioPath:
-                        'assets/Tic-Tac-Mechanical-Alarm-Clock-2-chosic.com_.mp3',
-                    loopAudio: true,
-                    vibrate: true,
-                    volume: 0.8,
-                    fadeDuration: 3.0,
-                    notificationTitle: 'You have an alarm set for $dateTime)',
-                    notificationBody: "Want to stop? Go to the app...",
-                  );
-                  await Alarm.set(alarmSettings: alarmSettings);
-                  alarmProvider.addAlarm(dateTime);
+                    final alarmSettings = AlarmSettings(
+                      id: 42,
+                      dateTime: dateTime,
+                      assetAudioPath:
+                          'assets/Tic-Tac-Mechanical-Alarm-Clock-2-chosic.com_.mp3',
+                      loopAudio: true,
+                      vibrate: true,
+                      volume: 0.8,
+                      fadeDuration: 3.0,
+                      notificationTitle: 'You have an alarm set for $dateTime',
+                      notificationBody: "Want to stop? Go to the app...",
+                    );
+                    await Alarm.set(alarmSettings: alarmSettings);
+                    alarmProvider.addAlarm(dateTime);
+                  }
                 }
-              }
-            },
-            style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all<Color>(Colors.transparent),
-              overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.hovered)) {
-                    return Colors.grey
-                        .withOpacity(0.1); // Adjust opacity as needed
-                  }
-                  return null; // No overlay color when not hovered
-                },
+              },
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.transparent),
+                overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.hovered)) {
+                      return Colors.grey.withOpacity(0.1);
+                    }
+                    return null;
+                  },
+                ),
+                side: MaterialStateProperty.all<BorderSide>(
+                  BorderSide(color: Colors.white, width: 2), // White border
+                ),
               ),
-            ),
-            child: Text(
-              'Add Alarm',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
+              child: Text(
+                'Add Alarm',
+                style: TextStyle(color: Colors.white),
+              ),
+            )),
         Padding(
-          padding: const EdgeInsets.only(bottom: 40),
-          child: ElevatedButton(
-            onPressed: () {
-              Alarm.stop(42);
-            },
-            style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all<Color>(Colors.transparent),
-              overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.hovered)) {
-                    return Colors.grey
-                        .withOpacity(0.1); // Adjust opacity as needed
-                  }
-                  return null; // No overlay color when not hovered
-                },
+            padding: const EdgeInsets.only(bottom: 40),
+            child: ElevatedButton(
+              onPressed: () {
+                Alarm.stop(42);
+              },
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.transparent),
+                overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.hovered)) {
+                      return Colors.grey.withOpacity(0.1);
+                    }
+                    return null;
+                  },
+                ),
+                side: MaterialStateProperty.all<BorderSide>(
+                  BorderSide(color: Colors.white, width: 2), // White border
+                ),
               ),
-            ),
-            child: Text(
-              'Stop',
-              style: TextStyle(
-                color: Colors.white, // Text color
+              child: Text(
+                'STOP',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold), // Text color
               ),
-            ),
-          ),
-        ),
+            )),
       ],
     );
   }

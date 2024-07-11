@@ -6,6 +6,6 @@ List Positions = [];
 void PostPosition({required double lati, required double longi}) {
   Positions.add(lati);
   Positions.add(longi);
-  print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+  // print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
   print(Positions);
 }
