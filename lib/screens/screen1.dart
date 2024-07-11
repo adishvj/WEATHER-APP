@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherapp/Constants/storing_lati_longi.dart';
+import 'package:weatherapp/screens/alarmScreen.dart';
 
 class Homepage1 extends StatefulWidget {
   String? city;
@@ -57,77 +58,84 @@ class _HomepageState extends State<Homepage1> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 counter.value = snapshot.data!;
-                return Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: Stack(
-                    children: [
-                      Image(
-                        image: AssetImage(
-                          "assets/images/background (2).png",
-                        ),
-                        fit: BoxFit.cover,
-                        height: double.infinity,
-                      ),
-                      Positioned(
-                          top: 120,
-                          left: 100,
-                          child: Text(
-                            snapshot.data!["name"].toString(),
-                            style: TextStyle(color: Colors.white, fontSize: 45),
-                          )),
-                      Positioned(
-                          top: 175,
-                          left: 140,
-                          child: Row(
-                            children: [
-                              Text(
-                                '${((snapshot.data!['main']['temp']) - 273).toStringAsFixed(0)}°',
+                return Column(
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: Stack(
+                        children: [
+                          Image(
+                            image: AssetImage(
+                              "assets/images/background (2).png",
+                            ),
+                            fit: BoxFit.cover,
+                            height: double.infinity,
+                          ),
+                          Positioned(
+                              top: 120,
+                              left: 100,
+                              child: Text(
+                                snapshot.data!["name"].toString(),
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 90,
+                                    color: Colors.white, fontSize: 45),
+                              )),
+                          Positioned(
+                              top: 175,
+                              left: 140,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '${((snapshot.data!['main']['temp']) - 273).toStringAsFixed(0)}°',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 90,
+                                    ),
+                                  ),
+                                  Text(
+                                    "C",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 40),
+                                  )
+                                ],
+                              )),
+                          Positioned(
+                              top: 270,
+                              left: 141,
+                              child: Text(
+                                snapshot.data!["weather"][0]["description"],
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(.5),
+                                  fontSize: 22,
                                 ),
-                              ),
-                              Text(
-                                "C",
+                              )),
+                          Positioned(
+                              top: 300,
+                              left: 128,
+                              child: Text(
+                                "H:${snapshot.data['main']['humidity']}\tWS:${snapshot.data['wind']['speed']}"
+                                    .toString(),
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 40),
-                              )
-                            ],
-                          )),
-                      Positioned(
-                          top: 270,
-                          left: 141,
-                          child: Text(
-                            snapshot.data!["weather"][0]["description"],
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(.5),
-                              fontSize: 22,
-                            ),
-                          )),
-                      Positioned(
-                          top: 300,
-                          left: 128,
-                          child: Text(
-                            "H:${snapshot.data['main']['humidity']}\tWS:${snapshot.data['wind']['speed']}"
-                                .toString(),
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(.5),
-                              fontSize: 22,
-                            ),
-                          )),
-                      Positioned(
-                          top: 350,
-                          left: 60,
-                          child: Image(
-                            image: AssetImage("assets/images/House (2).png"),
-                            height: 350,
-                            width: 250,
-                          )),
-                    ],
-                  ),
+                                  color: Colors.white.withOpacity(.5),
+                                  fontSize: 22,
+                                ),
+                              )),
+                          Positioned(
+                              top: 350,
+                              left: 60,
+                              child: Image(
+                                image:
+                                    AssetImage("assets/images/House (2).png"),
+                                height: 350,
+                                width: 250,
+                              )),
+                          AlarmScreen()
+                        ],
+                      ),
+                    ),
+                  ],
                 );
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error.toString()}');
